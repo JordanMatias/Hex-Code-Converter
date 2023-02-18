@@ -15,6 +15,35 @@ const errHandler = err => {
 
 export default {
   service: service,
+  
+   login(username, password) {
+    return service
+      .post('auth/login', {
+        username,
+        password
+      })
+      .then(res => {
+        localStorage.setItem('user', JSON.stringify(res.data));
+        return res.data;
+      })
+      .catch(errHandler);
+  },
+
+  logout() {
+    localStorage.removeItem('user');
+    return service.get('/auth/logout').then(res => {});
+  },
+
+  loadUser() {
+    const userData = localStorage.getItem('user');
+    if (!userData) return false;
+    const user = JSON.parse(userData);
+    if (user.token) {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + user.token;
+      return user;
+    }
+    return false;
+  },
 
   getColors() {
     return service
